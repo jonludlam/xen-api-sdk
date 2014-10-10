@@ -112,14 +112,14 @@ else
 	cp $(PROJECT_OUTPUTDIR)/dotnet-packages-ref/CookComputing.XmlRpcV2_dotnet2.dll $@
 endif
 
-$(MY_OBJ_DIR)/csharp_xmlrpc.tar.gz: $(REPO)/mk/sign.bat omake-phase $(MY_OBJ_DIR)/$(XMLRPC_DLL)
+$(MY_OBJ_DIR)/csharp_xmlrpc.tar.gz: $(REPO)/mk/sign.sh omake-phase $(MY_OBJ_DIR)/$(XMLRPC_DLL)
 	mkdir -p $(CSHARP_XMLRPC_TMP)
 	cp -r $(CSHARP_SRC_TMP) $(CSHARP_XMLRPC_TMP)
 	sed -i '/SignAssembly/ i <AssemblyOriginatorKeyFile>xs.net.snk</AssemblyOriginatorKeyFile>' $(CSHARP_XMLRPC_TMP)/XenServer.NET/XenServer.csproj
 	cp $< $(CSHARP_XMLRPC_TMP)
 	cp $(MY_OBJ_DIR)/$(XMLRPC_DLL) $(CSHARP_XMLRPC_TMP)
 	tar -C $(CSHARP_XMLRPC_TMP) -zcf $@ .
-   
+
 $(MY_OBJ_DIR)/XenServer.dll: $(MY_OBJ_DIR)/csharp_xmlrpc.tar.gz $(REPO)/mk/csharp.sh
 ifeq ($(SKIP_WINDOWS_BUILD), yes)
 	touch $@
@@ -134,7 +134,7 @@ csharp-bin: $(MY_OBJ_DIR)/$(XMLRPC_DLL) $(MY_OBJ_DIR)/XenServer.dll
 
 $(MY_OBJ_DIR)/powershell.tar.gz: $(MY_OBJ_DIR)/XenServer.dll \
                                  $(AUTOMATION_DLL_V2) $(MY_OBJ_DIR)/$(XMLRPC_DLL) \
-                                 $(REPO)/mk/sign.bat $(REPO)/mk/sign-ps.bat \
+                                 $(REPO)/mk/sign.sh \
                                  $(REPO)/powershell/*.ps1 \
                                  $(REPO)/powershell/*.ps1xml $(REPO)/powershell/samples/*.ps1
 	mkdir -p $(PS_TAR_TMP)

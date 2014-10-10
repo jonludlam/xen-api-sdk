@@ -28,28 +28,15 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-set -e
-
-FRAMEWORKDIR="${ROOT}/WINDOWS/Microsoft.NET/Framework/v3.5"
-MSBUILD="$FRAMEWORKDIR/MSBuild.exe"
-SDKDIR="${ROOT}/Program Files/Microsoft SDKs/Windows/v6.0A/bin"
-RESGEN="$SDKDIR/ResGen.exe"
-SNK="~/.ssh/xs.net.snk"
-
-# see http://www.interact-sw.co.uk/iangblog/2005/09/12/cmdspawnerror
-SYSPATHS="${ROOT}/WINDOWS/:${ROOT}/WINDOWS/System32:${ROOT}/WINDOWS/System32/wbem"
-
-#SKIP_SIGNING=yes
-
-remote_cmd_passwd2 "cd ${TMPDIR}/XenServer.NET/ && \"${RESGEN}\" FriendlyErrorNames.resx /str:cs,XenAPI,FriendlyErrorNames,FriendlyErrorNames.Designer.cs /publicClass"
-remote_cmd_passwd2 "cp ${SNK} ${TMPDIR}/XenServer.NET"
-remote_cmd_passwd2 "cd ${TMPDIR}/XenServer.NET/ && ${MSBUILD} XenServer.csproj /t:Build /p:Configuration=Release"
-remote_cmd_passwd2 "cp ${TMPDIR}/XenServer.NET/bin/Release/XenServer.dll ${TMPDIR}"
-remote_cmd_passwd2 "cp ${TMPDIR}/XenServer.NET/FriendlyErrorNames.Designer.cs ${TMPDIR}"
-
-if [ "$SKIP_SIGNING" != "yes" ]
+if [ -n "$CTXSIGN" ]
 then
-    remote_cmd_passwd2 "cd ${TMPDIR} && sh ./sign.sh XenServer.dll 'XenServer.NET'"
+    CYGCTX=$(cygpath -u "$CTXSIGN")
+    ls -l "$CYGCTX"
+    CCSS_TICKET=$("$CYGCTX" --authorise --workerID $HOSTNAME --orchID $HOSTNAME --jobID XenServerWindowsLegacyPVTools_signing --task XenServerAPIBindings-${BUILD_NUMBER})
+    export CCSS_TICKET
+    "$CYGCTX" --sign --cross-sign --key test-key "$1"
+    "$CYGCTX" --end
+else
+    CYGTOOL=$(cygpath -u C:\\WinDDK\\6001.18001\\bin\\catalog\\signtool.exe)
+    $CYGTOOL sign -a -s my -n "Citrix Systems, Inc" -d "$2" -t http://timestamp.verisign.com/scripts/timestamp.dll "$1"
 fi
-
-EXTRA_FILES="FriendlyErrorNames.Designer.cs"
