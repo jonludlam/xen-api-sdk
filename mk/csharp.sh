@@ -42,7 +42,7 @@ SYSPATHS="${ROOT}/WINDOWS/:${ROOT}/WINDOWS/System32:${ROOT}/WINDOWS/System32/wbe
 #SKIP_SIGNING=yes
 
 remote_cmd_passwd2 "cd ${TMPDIR}/XenServer.NET/ && \"${RESGEN}\" FriendlyErrorNames.resx /str:cs,XenAPI,FriendlyErrorNames,FriendlyErrorNames.Designer.cs /publicClass"
-remote_cmd_passwd2 "cp ${SNK} ${TMPDIR}/XenServer.NET"
+# remote_cmd_passwd2 "cp ${SNK} ${TMPDIR}/XenServer.NET"
 remote_cmd_passwd2 "cd ${TMPDIR}/XenServer.NET/ && ${MSBUILD} XenServer.csproj /t:Build /p:Configuration=Release"
 remote_cmd_passwd2 "cp ${TMPDIR}/XenServer.NET/bin/Release/XenServer.dll ${TMPDIR}"
 remote_cmd_passwd2 "cp ${TMPDIR}/XenServer.NET/FriendlyErrorNames.Designer.cs ${TMPDIR}"
